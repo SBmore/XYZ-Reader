@@ -18,11 +18,28 @@
 <resources>
 
     <style name="Theme.Bacon" parent="@style/Theme.AppCompat.Light.NoActionBar">
+        <!--<item name="colorPrimaryLight">@color/deep_orange_100</item>-->
+        <item name="colorPrimary">@color/deep_orange_500</item>
+        <item name="colorPrimaryDark">@color/deep_orange_700</item>
+        <item name="colorAccent">@color/light_blue_a400</item>
 
     </style>
 
     <style name="Theme.Bacon.Detail">
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
+
+    <style name="Theme.Bacon.PrimaryText">
+        <item name="android:textColor">@color/grey_900</item>
+        <item name="android:textColorLink">@color/light_blue_a400</item>
+    </style>
+
+    <!--<style name="Theme.Bacon.SecondaryText">-->
+        <!--<item name="textColorSecondary">@color/grey_600</item>-->
+    <!--</style>-->
+
+    <!--<style name="Theme.Bacon.Divider">-->
+        <!--<item name="divider">@color/grey_400</item>-->
+    <!--</style>-->
 
 </resources>

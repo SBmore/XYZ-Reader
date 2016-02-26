@@ -598,10 +598,11 @@ int drawable empty_detail 0x7f020048
 int drawable ic_arrow_back 0x7f020049
 int drawable ic_share 0x7f02004a
 int drawable logo 0x7f02004b
-int drawable notification_template_icon_bg 0x7f02004f
+int drawable notification_template_icon_bg 0x7f020050
 int drawable padded_divider 0x7f02004c
 int drawable photo_background_protection 0x7f02004d
-int drawable white_selectable_item_background_circle 0x7f02004e
+int drawable scrim 0x7f02004e
+int drawable white_selectable_item_background_circle 0x7f02004f
 int fraction detail_body_line_spacing_multiplier 0x7f0c0000
 int id action0 0x7f0e0084
 int id action_bar 0x7f0e005a
@@ -836,8 +837,9 @@ int string app_name 0x7f070017
 int string appbar_scrolling_view_behavior 0x7f070018
 int string character_counter_pattern 0x7f070019
 int string status_bar_notification_info_overflow 0x7f070013
-int string up 0x7f07001a
-int string welcome_xyz_reader 0x7f07001b
+int string transition_photo 0x7f07001a
+int string up 0x7f07001b
+int string welcome_xyz_reader 0x7f07001c
 int style AlertDialog_AppCompat 0x7f0a007e
 int style AlertDialog_AppCompat_Light 0x7f0a007f
 int style Animation_AppCompat_Dialog 0x7f0a0080

@@ -390,6 +390,7 @@
     <string name="status_bar_notification_info_overflow">999+</string>
     <!-- From: file:/F:/My%20Documents/Git/XYZ-Reader/XYZReader/src/main/res/values/strings.xml -->
     <eat-comment/>
+    <string name="transition_photo">transition photo</string>
     <string name="up">Up</string>
     <string name="welcome_xyz_reader">Welcome to XYZ Reader!</string>
     <!-- From: file:/F:/My%20Documents/Git/XYZ-Reader/XYZReader/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml -->

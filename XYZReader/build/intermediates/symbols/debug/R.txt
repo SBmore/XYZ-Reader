@@ -1603,4 +1603,4 @@ int[] styleable ViewStubCompat { 0x010100d0, 0x010100f2, 0x010100f3 }
 int styleable ViewStubCompat_android_id 0
 int styleable ViewStubCompat_android_inflatedId 2
 int styleable ViewStubCompat_android_layout 1
-int transition toolbar_entrance 0x7f060000
+int transition change_image_transform 0x7f060000

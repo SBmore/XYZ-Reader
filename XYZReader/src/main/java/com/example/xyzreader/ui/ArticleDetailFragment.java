@@ -55,7 +55,8 @@ public class ArticleDetailFragment extends Fragment implements
     private int mScrollY;
     private boolean mIsCard = false;
     private int mStatusBarFullOpacityBottom;
-    private Typeface roboto;
+    private Typeface robotoReg;
+    private Typeface robotoThin;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -93,7 +94,8 @@ public class ArticleDetailFragment extends Fragment implements
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        roboto = Typeface.createFromAsset(getResources().getAssets(), "Roboto-Regular.ttf");
+        robotoReg = Typeface.createFromAsset(getResources().getAssets(), "Roboto-Regular.ttf");
+        robotoThin = Typeface.createFromAsset(getResources().getAssets(), "Roboto-Light.ttf");
     }
 
     @Override
@@ -147,6 +149,8 @@ public class ArticleDetailFragment extends Fragment implements
             }
         });
 
+        String transitionName = mPhotoView.getTransitionName();
+        mPhotoView.setTransitionName(transitionName + mItemId);
         bindViews();
         updateStatusBar();
         return mRootView;
@@ -190,7 +194,9 @@ public class ArticleDetailFragment extends Fragment implements
         TextView bylineView = (TextView) mRootView.findViewById(R.id.article_byline);
         bylineView.setMovementMethod(new LinkMovementMethod());
         TextView bodyView = (TextView) mRootView.findViewById(R.id.article_body);
-        bodyView.setTypeface(roboto);
+        titleView.setTypeface(robotoThin);
+        bylineView.setTypeface(robotoThin);
+        bodyView.setTypeface(robotoReg);
 
         if (mCursor != null) {
             mRootView.setAlpha(0);
@@ -241,6 +247,8 @@ public class ArticleDetailFragment extends Fragment implements
 
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+        // tutorial said to put this in onCreateView but that caused a crash
+        ((ArticleDetailActivity) getActivity()).setPreDrawListener(mPhotoView);
         if (!isAdded()) {
             if (cursor != null) {
                 cursor.close();

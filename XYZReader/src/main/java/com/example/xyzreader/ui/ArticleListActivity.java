@@ -130,32 +130,34 @@ public class ArticleListActivity extends ActionBarActivity implements
     }
 
     private class Adapter extends RecyclerView.Adapter<ViewHolder> {
-        private Cursor mCursor;
+        private Cursor cursor;
 
         public Adapter(Cursor cursor, Activity activity) {
-            mCursor = cursor;
+            this.cursor = cursor;
             mActivity = activity;
         }
 
         @Override
         public long getItemId(int position) {
-            mCursor.moveToPosition(position);
-            return mCursor.getLong(ArticleLoader.Query._ID);
+            this.cursor.moveToPosition(position);
+            return this.cursor.getLong(ArticleLoader.Query._ID);
         }
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view = getLayoutInflater().inflate(R.layout.list_item_article, parent, false);
+
             final ViewHolder vh = new ViewHolder(view);
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     Bundle bundle = ActivityOptions.makeSceneTransitionAnimation(
-                            mActivity, view, getResources().getString(R.string.transition_photo))
+                            ArticleListActivity.this, view.findViewById(R.id.thumbnail),
+                            view.findViewById(R.id.thumbnail).getTransitionName())
                             .toBundle();
-                    startActivity(new Intent(Intent.ACTION_VIEW,
-                            ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition()))),
-                            bundle);
+                    Intent intent = new Intent(Intent.ACTION_VIEW,
+                            ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition())));
+                    startActivity(intent, bundle);
                 }
             });
             return vh;
@@ -163,24 +165,31 @@ public class ArticleListActivity extends ActionBarActivity implements
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            mCursor.moveToPosition(position);
-            holder.titleView.setText(mCursor.getString(ArticleLoader.Query.TITLE));
+            this.cursor.moveToPosition(position);
+
+            // Make the transition names on the thumbnail view unique
+            long id = this.cursor.getLong(ArticleLoader.Query._ID);
+            String transitionName = holder.thumbnailView.getTransitionName();
+            holder.thumbnailView.setTransitionName(transitionName + id);
+
+            holder.titleView.setText(this.cursor.getString(ArticleLoader.Query.TITLE));
             holder.subtitleView.setText(
                     DateUtils.getRelativeTimeSpanString(
-                            mCursor.getLong(ArticleLoader.Query.PUBLISHED_DATE),
+                            this.cursor.getLong(ArticleLoader.Query.PUBLISHED_DATE),
                             System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS,
                             DateUtils.FORMAT_ABBREV_ALL).toString()
                             + " by "
-                            + mCursor.getString(ArticleLoader.Query.AUTHOR));
+                            + this.cursor.getString(ArticleLoader.Query.AUTHOR));
             holder.thumbnailView.setImageUrl(
-                    mCursor.getString(ArticleLoader.Query.THUMB_URL),
+                    this.cursor.getString(ArticleLoader.Query.THUMB_URL),
                     ImageLoaderHelper.getInstance(ArticleListActivity.this).getImageLoader());
-            holder.thumbnailView.setAspectRatio(mCursor.getFloat(ArticleLoader.Query.ASPECT_RATIO));
+
+            holder.thumbnailView.setAspectRatio(this.cursor.getFloat(ArticleLoader.Query.ASPECT_RATIO));
         }
 
         @Override
         public int getItemCount() {
-            return mCursor.getCount();
+            return this.cursor.getCount();
         }
     }
 

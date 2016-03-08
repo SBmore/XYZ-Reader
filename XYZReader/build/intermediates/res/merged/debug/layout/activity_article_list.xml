@@ -7,7 +7,7 @@
     <android.support.design.widget.AppBarLayout
         android:id="@+id/toolbar_container"
         android:layout_width="match_parent"
-        android:layout_height="128dp"
+        android:layout_height="@dimen/toolbar_extended"
         android:background="?colorPrimary">
 
         <android.support.design.widget.CollapsingToolbarLayout
@@ -20,9 +20,9 @@
                 android:layout_gravity="bottom"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingBottom="3dp"
-                android:paddingStart="72dp"
-                android:paddingEnd="72dp"
+                android:paddingBottom="@dimen/logo_bottom"
+                android:paddingStart="@dimen/logo_start"
+                android:paddingEnd="@dimen/logo_end"
                 android:contentDescription="@string/app_name"
                 android:src="@drawable/logo" />
 
@@ -30,8 +30,6 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?actionBarSize"
-                android:layout_marginLeft="@dimen/list_toolbar_side_margin"
-                android:layout_marginRight="@dimen/list_toolbar_side_margin"
                 app:layout_collapseMode="pin"
                 app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
@@ -48,6 +46,10 @@
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:paddingStart="@dimen/list_start"
+            android:paddingEnd="@dimen/list_end"/>
+
     </android.support.v4.widget.SwipeRefreshLayout>
-</android.support.design.widget.CoordinatorLayout><!-- From: file:/F:/My%20Documents/Git/XYZ-Reader/XYZReader/src/main/res/layout/activity_article_list.xml -->
+</android.support.design.widget.CoordinatorLayout>
+<!-- From: file:/F:/My%20Documents/Git/XYZ-Reader/XYZReader/src/main/res/layout/activity_article_list.xml -->

@@ -2,10 +2,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="4dp"
-    android:layout_marginLeft="4dp"
-    android:layout_marginRight="4dp"
-    android:layout_marginTop="4dp"
+    android:layout_marginBottom="@dimen/article_bottom"
+    android:layout_marginStart="@dimen/article_end"
+    android:layout_marginEnd="@dimen/article_start"
+    android:layout_marginTop="@dimen/article_top"
     android:clickable="true"
     android:focusable="true"
     android:foreground="?selectableItemBackground">
@@ -39,13 +39,13 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:ellipsize="end"
-                android:maxLines="4"
-                android:paddingBottom="4dp"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp"
-                android:paddingTop="16dp"
+                android:maxLines="2"
+                android:paddingStart="@dimen/article_title_start"
+                android:paddingEnd="@dimen/article_title_end"
+                android:paddingBottom="@dimen/article_title_bottom"
+                android:paddingTop="@dimen/article_title_top"
                 android:textColor="@color/white"
-                android:textSize="12sp" />
+                android:textSize="@dimen/list_title_text_size" />
         </FrameLayout>
 
         <FrameLayout
@@ -60,13 +60,13 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:paddingBottom="8dp"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp"
-                android:paddingTop="8dp"
+                android:paddingStart="@dimen/article_subtitle_start"
+                android:paddingEnd="@dimen/article_subtitle_end"
+                android:paddingBottom="@dimen/article_subtitle_bottom"
+                android:paddingTop="@dimen/article_subtitle_top"
                 android:singleLine="true"
                 android:textColor="@color/grey_600"
-                android:textSize="12sp" />
+                android:textSize="@dimen/list_subtitle_text_size" />
         </FrameLayout>
     </LinearLayout>
 

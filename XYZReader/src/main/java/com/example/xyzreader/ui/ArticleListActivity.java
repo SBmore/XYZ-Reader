@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.Loader;
 import android.database.Cursor;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -41,6 +42,8 @@ public class ArticleListActivity extends ActionBarActivity implements
     private AppBarLayout mAppBarLayout;
     private Adapter mAdapter;
     private Activity mActivity;
+    private Typeface robotoReg;
+    private Typeface robotoThin;
     private boolean mIsRefreshing = false;
     private BroadcastReceiver mRefreshingReceiver = new BroadcastReceiver() {
         @Override
@@ -61,6 +64,9 @@ public class ArticleListActivity extends ActionBarActivity implements
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
         mToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+
+        robotoReg = Typeface.createFromAsset(getResources().getAssets(), "Roboto-Regular.ttf");
+        robotoThin = Typeface.createFromAsset(getResources().getAssets(), "Roboto-Light.ttf");
 
         getLoaderManager().initLoader(0, null, this);
 
@@ -148,6 +154,7 @@ public class ArticleListActivity extends ActionBarActivity implements
             View view = getLayoutInflater().inflate(R.layout.list_item_article, parent, false);
 
             final ViewHolder vh = new ViewHolder(view);
+
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -167,12 +174,8 @@ public class ArticleListActivity extends ActionBarActivity implements
         public void onBindViewHolder(ViewHolder holder, int position) {
             this.cursor.moveToPosition(position);
 
-            // Make the transition names on the thumbnail view unique
-            long id = this.cursor.getLong(ArticleLoader.Query._ID);
-            String transitionName = holder.thumbnailView.getTransitionName();
-            holder.thumbnailView.setTransitionName(transitionName + id);
-
             holder.titleView.setText(this.cursor.getString(ArticleLoader.Query.TITLE));
+            holder.titleView.setTypeface(robotoThin);
             holder.subtitleView.setText(
                     DateUtils.getRelativeTimeSpanString(
                             this.cursor.getLong(ArticleLoader.Query.PUBLISHED_DATE),
@@ -180,11 +183,16 @@ public class ArticleListActivity extends ActionBarActivity implements
                             DateUtils.FORMAT_ABBREV_ALL).toString()
                             + " by "
                             + this.cursor.getString(ArticleLoader.Query.AUTHOR));
+            holder.subtitleView.setTypeface(robotoReg);
             holder.thumbnailView.setImageUrl(
                     this.cursor.getString(ArticleLoader.Query.THUMB_URL),
                     ImageLoaderHelper.getInstance(ArticleListActivity.this).getImageLoader());
-
             holder.thumbnailView.setAspectRatio(this.cursor.getFloat(ArticleLoader.Query.ASPECT_RATIO));
+
+            // Make the transition names on the thumbnail view unique
+            long id = this.cursor.getLong(ArticleLoader.Query._ID);
+            String transitionName = holder.thumbnailView.getTransitionName();
+            holder.thumbnailView.setTransitionName(transitionName + id);
         }
 
         @Override

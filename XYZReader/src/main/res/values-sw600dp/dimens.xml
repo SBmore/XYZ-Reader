@@ -1,7 +1,45 @@
 <resources>
-    <!-- detail -->
+    <!-- text -->
+    <dimen name="list_title_text_size">16sp</dimen>
+    <dimen name="list_subtitle_text_size">12sp</dimen>
+
     <dimen name="detail_title_text_size">42sp</dimen>
     <dimen name="detail_body_text_size">20sp</dimen>
     <item name="detail_body_line_spacing_multiplier" format="float" type="fraction">1.3</item>
+
+    <!-- elevation -->
+    <dimen name="fab_elevation">6dp</dimen>
+    <dimen name="fab_press_translation_z">12dp</dimen>
     <dimen name="fab_margin">24dp</dimen>
+
+    <dimen name="init_scroll_up_distance">32dp</dimen>
+
+    <!-- padding -->
+    <dimen name="toolbar_extended">256dp</dimen>
+
+    <dimen name="logo_start">72dp</dimen>
+    <dimen name="logo_end">72dp</dimen>
+    <dimen name="logo_bottom">4dp</dimen>
+
+    <!-- this plus article padding -->
+    <dimen name="list_start">48dp</dimen>
+    <dimen name="list_end">48dp</dimen>
+
+    <dimen name="article_start">8dp</dimen>
+    <dimen name="article_end">8dp</dimen>
+    <dimen name="article_top">16dp</dimen>
+    <dimen name="article_bottom">0dp</dimen>
+
+    <dimen name="article_title_start">16dp</dimen>
+    <dimen name="article_title_end">16dp</dimen>
+    <dimen name="article_title_top">8dp</dimen>
+    <dimen name="article_title_bottom">8dp</dimen>
+
+    <dimen name="article_subtitle_start">16dp</dimen>
+    <dimen name="article_subtitle_end">16dp</dimen>
+    <dimen name="article_subtitle_top">8dp</dimen>
+    <dimen name="article_subtitle_bottom">8dp</dimen>
+
+    <!-- dimensions -->
+    <dimen name="action_up_image_width">56dp</dimen>
 </resources>

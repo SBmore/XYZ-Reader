@@ -9,6 +9,21 @@
     <dimen name="abc_config_prefDialogWidth">580dp</dimen>
     <dimen name="abc_text_size_subtitle_material_toolbar">16dp</dimen>
     <dimen name="abc_text_size_title_material_toolbar">20dp</dimen>
+    <!-- From: file:/F:/My%20Documents/Git/XYZ-Reader/XYZReader/src/main/res/values-sw600dp/dimens.xml -->
+    <eat-comment/>
+    <dimen name="action_up_image_width">56dp</dimen>
+    <dimen name="article_bottom">0dp</dimen>
+    <dimen name="article_end">8dp</dimen>
+    <dimen name="article_start">8dp</dimen>
+    <dimen name="article_subtitle_bottom">8dp</dimen>
+    <dimen name="article_subtitle_end">16dp</dimen>
+    <dimen name="article_subtitle_start">16dp</dimen>
+    <dimen name="article_subtitle_top">8dp</dimen>
+    <dimen name="article_title_bottom">8dp</dimen>
+    <dimen name="article_title_end">16dp</dimen>
+    <dimen name="article_title_start">16dp</dimen>
+    <dimen name="article_title_top">8dp</dimen>
+    <dimen name="article_top">16dp</dimen>
     <!-- From: file:/F:/My%20Documents/Git/XYZ-Reader/XYZReader/build/intermediates/exploded-aar/com.android.support/design/23.1.1/res/values-sw600dp/values-sw600dp.xml -->
     <eat-comment/>
     <dimen name="design_snackbar_action_inline_max_width">0dp</dimen>
@@ -34,7 +49,18 @@
     <!-- From: file:/F:/My%20Documents/Git/XYZ-Reader/XYZReader/src/main/res/values-sw600dp/dimens.xml -->
     <eat-comment/>
     <dimen name="detail_title_text_size">42sp</dimen>
+    <dimen name="fab_elevation">6dp</dimen>
     <dimen name="fab_margin">24dp</dimen>
+    <dimen name="fab_press_translation_z">12dp</dimen>
+    <dimen name="init_scroll_up_distance">32dp</dimen>
+    <dimen name="list_end">48dp</dimen>
+    <dimen name="list_start">48dp</dimen>
+    <dimen name="list_subtitle_text_size">12sp</dimen>
+    <dimen name="list_title_text_size">16sp</dimen>
+    <dimen name="logo_bottom">4dp</dimen>
+    <dimen name="logo_end">72dp</dimen>
+    <dimen name="logo_start">72dp</dimen>
+    <dimen name="toolbar_extended">256dp</dimen>
     <item format="float" name="detail_body_line_spacing_multiplier" type="fraction">1.3</item>
     <!-- From: file:/F:/My%20Documents/Git/XYZ-Reader/XYZReader/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values-sw600dp/values-sw600dp.xml -->
     <eat-comment/>

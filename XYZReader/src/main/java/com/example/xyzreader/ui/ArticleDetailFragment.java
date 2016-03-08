@@ -134,6 +134,8 @@ public class ArticleDetailFragment extends Fragment implements
         });
 
         mPhotoView = (ImageView) mRootView.findViewById(R.id.photo);
+        String transitionName = mPhotoView.getTransitionName();
+        mPhotoView.setTransitionName(transitionName + mItemId);
         mPhotoView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         mPhotoContainerView = mRootView.findViewById(R.id.photo_container);
 
@@ -149,8 +151,6 @@ public class ArticleDetailFragment extends Fragment implements
             }
         });
 
-        String transitionName = mPhotoView.getTransitionName();
-        mPhotoView.setTransitionName(transitionName + mItemId);
         bindViews();
         updateStatusBar();
         return mRootView;
@@ -221,6 +221,7 @@ public class ArticleDetailFragment extends Fragment implements
                                 Palette p = Palette.generate(bitmap, 12);
                                 mMutedColor = p.getDarkMutedColor(0xFFFF5722);
                                 mPhotoView.setImageBitmap(imageContainer.getBitmap());
+                                ((ArticleDetailActivity) getActivity()).setPreDrawListener(mPhotoView);
                                 mRootView.findViewById(R.id.meta_bar)
                                         .setBackgroundColor(mMutedColor);
                                 updateStatusBar();
@@ -248,7 +249,6 @@ public class ArticleDetailFragment extends Fragment implements
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
         // tutorial said to put this in onCreateView but that caused a crash
-        ((ArticleDetailActivity) getActivity()).setPreDrawListener(mPhotoView);
         if (!isAdded()) {
             if (cursor != null) {
                 cursor.close();

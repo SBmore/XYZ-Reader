@@ -14,7 +14,7 @@ import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.text.format.DateUtils;
@@ -33,7 +33,7 @@ import com.example.xyzreader.data.UpdaterService;
  * touched, lead to a {@link ArticleDetailActivity} representing item details. On tablets, the
  * activity presents a grid of items as cards.
  */
-public class ArticleListActivity extends ActionBarActivity implements
+public class ArticleListActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
     private CollapsingToolbarLayout mToolbar;
@@ -61,10 +61,15 @@ public class ArticleListActivity extends ActionBarActivity implements
         setContentView(R.layout.activity_article_list);
 
         mAppBarLayout = (AppBarLayout) findViewById(R.id.toolbar_container);
-        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
         mToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refresh();
+            }
+        });
         robotoReg = Typeface.createFromAsset(getResources().getAssets(), "Roboto-Regular.ttf");
         robotoThin = Typeface.createFromAsset(getResources().getAssets(), "Roboto-Light.ttf");
 

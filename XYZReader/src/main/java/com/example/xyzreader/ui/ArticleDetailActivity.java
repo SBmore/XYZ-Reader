@@ -3,12 +3,14 @@ package com.example.xyzreader.ui;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.LoaderManager;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v13.app.FragmentStatePagerAdapter;
+import android.support.v4.app.SharedElementCallback;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.TypedValue;
@@ -16,10 +18,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowInsets;
+import android.widget.ImageView;
 
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
 import com.example.xyzreader.data.ItemsContract;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * An activity representing a single Article detail screen, letting you swipe between articles.
@@ -39,11 +45,35 @@ public class ArticleDetailActivity extends AppCompatActivity
     private View mUpButtonContainer;
     private View mUpButton;
 
+    private long mStartingId;
+    private boolean mIsReturning;
+    private ArticleDetailFragment mCurrentFragment;
+
+
+    private final SharedElementCallback mCallback = new SharedElementCallback() {
+        @Override
+        public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
+            if (mIsReturning) {
+                ImageView sharedElement = mCurrentFragment.getTransitionImage();
+                if (sharedElement == null) {
+                    names.clear();
+                    sharedElements.clear();
+                } else if (mStartingId != mSelectedItemId) {
+                    names.clear();
+                    names.add(sharedElement.getTransitionName());
+                    sharedElements.clear();
+                    sharedElements.put(sharedElement.getTransitionName(), sharedElement);
+                }
+            }
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         postponeEnterTransition();
+        setEnterSharedElementCallback(mCallback);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().getDecorView().setSystemUiVisibility(
@@ -108,7 +138,15 @@ public class ArticleDetailActivity extends AppCompatActivity
                 mStartId = ItemsContract.Items.getItemId(getIntent().getData());
                 mSelectedItemId = mStartId;
             }
+        } else {
+            mSelectedItemId = savedInstanceState.getLong(ArticleListActivity.EXTRA_CURRENT_ID);
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putLong(ArticleListActivity.EXTRA_CURRENT_ID, mSelectedItemId);
     }
 
     @Override
@@ -135,6 +173,17 @@ public class ArticleDetailActivity extends AppCompatActivity
             }
             mStartId = 0;
         }
+    }
+
+    @Override
+    public void finishAfterTransition() {
+        // Reverses the shared element transition
+        mIsReturning = true;
+        Intent intent = new Intent();
+        intent.putExtra(ArticleListActivity.EXTRA_STARTING_ID, mStartingId);
+        intent.putExtra(ArticleListActivity.EXTRA_CURRENT_ID, mSelectedItemId);
+        setResult(RESULT_OK, intent);
+        super.finishAfterTransition();
     }
 
     @Override
@@ -176,9 +225,9 @@ public class ArticleDetailActivity extends AppCompatActivity
         @Override
         public void setPrimaryItem(ViewGroup container, int position, Object object) {
             super.setPrimaryItem(container, position, object);
-            ArticleDetailFragment fragment = (ArticleDetailFragment) object;
-            if (fragment != null) {
-                mSelectedItemUpButtonFloor = fragment.getUpButtonFloor();
+            mCurrentFragment = (ArticleDetailFragment) object;
+            if (mCurrentFragment != null) {
+                mSelectedItemUpButtonFloor = mCurrentFragment.getUpButtonFloor();
                 updateUpButtonPosition();
             }
         }
@@ -186,7 +235,8 @@ public class ArticleDetailActivity extends AppCompatActivity
         @Override
         public Fragment getItem(int position) {
             mCursor.moveToPosition(position);
-            return ArticleDetailFragment.newInstance(mCursor.getLong(ArticleLoader.Query._ID));
+            return ArticleDetailFragment.newInstance(mCursor.getLong(ArticleLoader.Query._ID),
+                    mStartingId);
         }
 
         @Override

@@ -1,6 +1,5 @@
 package com.example.xyzreader.ui;
 
-import android.app.Activity;
 import android.app.ActivityOptions;
 import android.app.LoaderManager;
 import android.content.BroadcastReceiver;
@@ -11,8 +10,7 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v4.app.SharedElementCallback;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -27,6 +25,9 @@ import com.example.xyzreader.data.ArticleLoader;
 import com.example.xyzreader.data.ItemsContract;
 import com.example.xyzreader.data.UpdaterService;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * An activity representing a list of Articles. This activity has different presentations for
  * handset and tablet-size devices. On handsets, the activity presents a list of items, which when
@@ -36,12 +37,12 @@ import com.example.xyzreader.data.UpdaterService;
 public class ArticleListActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
-    private CollapsingToolbarLayout mToolbar;
+    public static final String EXTRA_STARTING_ID = "start_id";
+    public static final String EXTRA_CURRENT_ID = "current_id";
+
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerView;
-    private AppBarLayout mAppBarLayout;
-    private Adapter mAdapter;
-    private Activity mActivity;
+    private Bundle mReenterBundle;
     private Typeface robotoReg;
     private Typeface robotoThin;
     private boolean mIsRefreshing = false;
@@ -55,13 +56,44 @@ public class ArticleListActivity extends AppCompatActivity implements
         }
     };
 
+    // This technique to reverse shared element transitions even after swiping to a different fragment
+    // was learned from this tutorial: http://stackoverflow.com/questions/27304834/viewpager-fragments-shared-element-transitions
+    // and the linked example: https://github.com/alexjlockwood/activity-transitions
+    private final SharedElementCallback mCallback = new SharedElementCallback() {
+        // adjust the mapping of shared element names to Views so that the return shared transition
+        // will match up even after changing fragments in ArticleDetailActivity
+        @Override
+        public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
+            if (mReenterBundle != null) {
+                long startingId = mReenterBundle.getLong(EXTRA_STARTING_ID);
+                long currentId = mReenterBundle.getLong(EXTRA_CURRENT_ID);
+                if (startingId != currentId) {
+                    // the user has swiped to a different fragment in ArticleDetailActivity so
+                    // update the shared element
+                    View sharedElement = mRecyclerView.findViewWithTag(currentId);
+                    if (sharedElement != null) {
+                        String transitionName = sharedElement.getTransitionName();
+                        names.clear();
+                        names.add(transitionName);
+                        sharedElements.clear();
+                        sharedElements.put(transitionName, sharedElement);
+                    }
+                }
+
+                mReenterBundle = null;
+            }
+        }
+    };
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article_list);
 
-        mAppBarLayout = (AppBarLayout) findViewById(R.id.toolbar_container);
-        mToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+        // set the callback created above so return shared transitions match up
+        setExitSharedElementCallback(mCallback);
+
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -77,6 +109,23 @@ public class ArticleListActivity extends AppCompatActivity implements
 
         if (savedInstanceState == null) {
             refresh();
+        }
+    }
+
+    // prepare data when coming back from ArticleDetailActivity so the correct return transition
+    // is performed
+    @Override
+    public void onActivityReenter(int requestCode, Intent data) {
+        super.onActivityReenter(requestCode, data);
+        mReenterBundle = new Bundle(data.getExtras());
+
+        int startId = mReenterBundle.getInt(EXTRA_STARTING_ID);
+        int currentId = mReenterBundle.getInt(EXTRA_CURRENT_ID);
+
+        if (startId != currentId) {
+            View sharedElement = mRecyclerView.findViewWithTag(currentId);
+            // TODO: 10/03/2016 Figure out how to get the position of the shared element so it can be scrolled to
+            mRecyclerView.scrollToPosition(7);
         }
     }
 
@@ -119,9 +168,10 @@ public class ArticleListActivity extends AppCompatActivity implements
 
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        mAdapter = new Adapter(cursor, this);
-        mAdapter.setHasStableIds(true);
-        mRecyclerView.setAdapter(mAdapter);
+        Adapter adapter;
+        adapter = new Adapter(cursor);
+        adapter.setHasStableIds(true);
+        mRecyclerView.setAdapter(adapter);
 
         int columnCount = getResources().getInteger(R.integer.list_column_count);
         StaggeredGridLayoutManager sglm =
@@ -142,10 +192,10 @@ public class ArticleListActivity extends AppCompatActivity implements
 
     private class Adapter extends RecyclerView.Adapter<ViewHolder> {
         private Cursor cursor;
+        private long id;
 
-        public Adapter(Cursor cursor, Activity activity) {
+        public Adapter(Cursor cursor) {
             this.cursor = cursor;
-            mActivity = activity;
         }
 
         @Override
@@ -169,6 +219,9 @@ public class ArticleListActivity extends AppCompatActivity implements
                             .toBundle();
                     Intent intent = new Intent(Intent.ACTION_VIEW,
                             ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition())));
+                    // Add the ID to the intent for the shared transitions to identify if the user
+                    // has swiped to a different fragment so the return animation works
+                    intent.putExtra(EXTRA_STARTING_ID, id);
                     startActivity(intent, bundle);
                 }
             });
@@ -195,9 +248,10 @@ public class ArticleListActivity extends AppCompatActivity implements
             holder.thumbnailView.setAspectRatio(this.cursor.getFloat(ArticleLoader.Query.ASPECT_RATIO));
 
             // Make the transition names on the thumbnail view unique
-            long id = this.cursor.getLong(ArticleLoader.Query._ID);
-            String transitionName = holder.thumbnailView.getTransitionName();
-            holder.thumbnailView.setTransitionName(transitionName + id);
+            id = this.cursor.getLong(ArticleLoader.Query._ID);
+            String transitionName = holder.thumbnailView.getTransitionName() + id;
+            holder.thumbnailView.setTransitionName(transitionName);
+            holder.thumbnailView.setTag(id);
         }
 
         @Override

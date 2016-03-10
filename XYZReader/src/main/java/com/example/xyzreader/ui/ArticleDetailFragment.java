@@ -38,11 +38,11 @@ public class ArticleDetailFragment extends Fragment implements
         LoaderManager.LoaderCallbacks<Cursor> {
     private static final String TAG = "ArticleDetailFragment";
 
-    public static final String ARG_ITEM_ID = "item_id";
     private static final float PARALLAX_FACTOR = 1.25f;
 
     private Cursor mCursor;
     private long mItemId;
+    private long mStartId;
     private View mRootView;
     private int mMutedColor = 0xFFFF5722;
     private ObservableScrollView mScrollView;
@@ -57,6 +57,7 @@ public class ArticleDetailFragment extends Fragment implements
     private int mStatusBarFullOpacityBottom;
     private Typeface robotoReg;
     private Typeface robotoThin;
+    private boolean mIsTransitioning;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -65,9 +66,10 @@ public class ArticleDetailFragment extends Fragment implements
     public ArticleDetailFragment() {
     }
 
-    public static ArticleDetailFragment newInstance(long itemId) {
+    public static ArticleDetailFragment newInstance(long itemId, long startId) {
         Bundle arguments = new Bundle();
-        arguments.putLong(ARG_ITEM_ID, itemId);
+        arguments.putLong(ArticleListActivity.EXTRA_CURRENT_ID, itemId);
+        arguments.putLong(ArticleListActivity.EXTRA_STARTING_ID, startId);
         ArticleDetailFragment fragment = new ArticleDetailFragment();
         fragment.setArguments(arguments);
         return fragment;
@@ -77,10 +79,14 @@ public class ArticleDetailFragment extends Fragment implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments().containsKey(ARG_ITEM_ID)) {
-            mItemId = getArguments().getLong(ARG_ITEM_ID);
+        if (getArguments().containsKey(ArticleListActivity.EXTRA_CURRENT_ID)) {
+            mItemId = getArguments().getLong(ArticleListActivity.EXTRA_CURRENT_ID);
+        }
+        if (getArguments().containsKey(ArticleListActivity.EXTRA_STARTING_ID)) {
+            mStartId = getArguments().getLong(ArticleListActivity.EXTRA_STARTING_ID);
         }
 
+        mIsTransitioning = savedInstanceState == null && mStartId == mItemId;
         mIsCard = getResources().getBoolean(R.bool.detail_is_card);
         mStatusBarFullOpacityBottom = getResources().getDimensionPixelSize(
                 R.dimen.detail_card_top_margin);
@@ -271,6 +277,14 @@ public class ArticleDetailFragment extends Fragment implements
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
         mCursor = null;
         bindViews();
+    }
+    ImageView getTransitionImage() {
+        Rect bounds = new Rect();
+        getActivity().getWindow().getDecorView().getHitRect(bounds);
+        if (mPhotoView.getLocalVisibleRect(bounds)) {
+            return mPhotoView;
+        }
+        return null;
     }
 
     public int getUpButtonFloor() {

@@ -45,6 +45,7 @@ public class ArticleDetailActivity extends AppCompatActivity
     private View mUpButtonContainer;
     private View mUpButton;
 
+    private String mTitleText;
     private long mStartingId;
     private boolean mIsReturning;
     private ArticleDetailFragment mCurrentFragment;
@@ -104,8 +105,9 @@ public class ArticleDetailActivity extends AppCompatActivity
             public void onPageSelected(int position) {
                 if (mCursor != null) {
                     mCursor.moveToPosition(position);
+                    mSelectedItemId = mCursor.getLong(ArticleLoader.Query._ID);
+                    mTitleText = mCursor.getString(ArticleLoader.Query.TITLE);
                 }
-                mSelectedItemId = mCursor.getLong(ArticleLoader.Query._ID);
                 updateUpButtonPosition();
             }
         });
@@ -141,6 +143,19 @@ public class ArticleDetailActivity extends AppCompatActivity
         } else {
             mSelectedItemId = savedInstanceState.getLong(ArticleListActivity.EXTRA_CURRENT_ID);
         }
+
+        this.findViewById(R.id.share_fab).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent();
+                intent.setAction(Intent.ACTION_SEND);
+                intent.putExtra(Intent.EXTRA_TEXT,
+                        "Check out this article by downloading the XYZReader app on the Play Store:\n" +
+                        mTitleText);
+                intent.setType("text/plain");
+                startActivity(Intent.createChooser(intent, getString(R.string.action_share)));
+            }
+        });
     }
 
     @Override
@@ -227,6 +242,7 @@ public class ArticleDetailActivity extends AppCompatActivity
             super.setPrimaryItem(container, position, object);
             mCurrentFragment = (ArticleDetailFragment) object;
             if (mCurrentFragment != null) {
+                mTitleText = mCursor.getString(ArticleLoader.Query.TITLE);
                 mSelectedItemUpButtonFloor = mCurrentFragment.getUpButtonFloor();
                 updateUpButtonPosition();
             }

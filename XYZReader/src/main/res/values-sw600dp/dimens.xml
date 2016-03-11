@@ -42,4 +42,5 @@
 
     <!-- dimensions -->
     <dimen name="action_up_image_width">56dp</dimen>
+    <dimen name="fab_image_width">56dp</dimen>
 </resources>

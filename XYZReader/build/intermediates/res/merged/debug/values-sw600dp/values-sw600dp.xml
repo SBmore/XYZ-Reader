@@ -50,6 +50,7 @@
     <eat-comment/>
     <dimen name="detail_title_text_size">42sp</dimen>
     <dimen name="fab_elevation">6dp</dimen>
+    <dimen name="fab_image_width">56dp</dimen>
     <dimen name="fab_margin">24dp</dimen>
     <dimen name="fab_press_translation_z">12dp</dimen>
     <dimen name="init_scroll_up_distance">32dp</dimen>

@@ -16,6 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -36,6 +37,7 @@ import java.util.Map;
  */
 public class ArticleListActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
+    private static final String TAG = "ArticleDetailActivity";
 
     public static final String EXTRA_STARTING_ID = "start_id";
     public static final String EXTRA_CURRENT_ID = "current_id";
@@ -45,6 +47,7 @@ public class ArticleListActivity extends AppCompatActivity implements
     private Bundle mReenterBundle;
     private Typeface robotoReg;
     private Typeface robotoThin;
+    private Long mStartId;
     private boolean mIsRefreshing = false;
     private BroadcastReceiver mRefreshingReceiver = new BroadcastReceiver() {
         @Override
@@ -67,6 +70,7 @@ public class ArticleListActivity extends AppCompatActivity implements
             if (mReenterBundle != null) {
                 long startingId = mReenterBundle.getLong(EXTRA_STARTING_ID);
                 long currentId = mReenterBundle.getLong(EXTRA_CURRENT_ID);
+                Log.i(TAG, "01. statingId: " + startingId + " currentId: " + currentId);
                 if (startingId != currentId) {
                     // the user has swiped to a different fragment in ArticleDetailActivity so
                     // update the shared element
@@ -79,12 +83,10 @@ public class ArticleListActivity extends AppCompatActivity implements
                         sharedElements.put(transitionName, sharedElement);
                     }
                 }
-
                 mReenterBundle = null;
             }
         }
     };
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +104,8 @@ public class ArticleListActivity extends AppCompatActivity implements
                 refresh();
             }
         });
+
+        // App uses fonts that are either the Android defaults, are complementary, and aren't otherwise distracting.
         robotoReg = Typeface.createFromAsset(getResources().getAssets(), "Roboto-Regular.ttf");
         robotoThin = Typeface.createFromAsset(getResources().getAssets(), "Roboto-Light.ttf");
 
@@ -119,13 +123,16 @@ public class ArticleListActivity extends AppCompatActivity implements
         super.onActivityReenter(requestCode, data);
         mReenterBundle = new Bundle(data.getExtras());
 
-        int startId = mReenterBundle.getInt(EXTRA_STARTING_ID);
-        int currentId = mReenterBundle.getInt(EXTRA_CURRENT_ID);
+        mStartId = mReenterBundle.getLong(EXTRA_STARTING_ID);
+        long currentId = mReenterBundle.getLong(EXTRA_CURRENT_ID);
 
-        if (startId != currentId) {
+        Log.i(TAG, "02. statingId: " + mStartId + " currentId: " + currentId);
+        if (mStartId != currentId) {
+            postponeEnterTransition();
             View sharedElement = mRecyclerView.findViewWithTag(currentId);
             // TODO: 10/03/2016 Figure out how to get the position of the shared element so it can be scrolled to
-            mRecyclerView.scrollToPosition(7);
+//            mRecyclerView.scrollToPosition(7);
+            startPostponedEnterTransition();
         }
     }
 
@@ -192,7 +199,6 @@ public class ArticleListActivity extends AppCompatActivity implements
 
     private class Adapter extends RecyclerView.Adapter<ViewHolder> {
         private Cursor cursor;
-        private long id;
 
         public Adapter(Cursor cursor) {
             this.cursor = cursor;
@@ -213,6 +219,7 @@ public class ArticleListActivity extends AppCompatActivity implements
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    mStartId = Long.parseLong(vh.thumbnailView.getTag().toString());
                     Bundle bundle = ActivityOptions.makeSceneTransitionAnimation(
                             ArticleListActivity.this, view.findViewById(R.id.thumbnail),
                             view.findViewById(R.id.thumbnail).getTransitionName())
@@ -221,7 +228,10 @@ public class ArticleListActivity extends AppCompatActivity implements
                             ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition())));
                     // Add the ID to the intent for the shared transitions to identify if the user
                     // has swiped to a different fragment so the return animation works
-                    intent.putExtra(EXTRA_STARTING_ID, id);
+                    intent.putExtra(EXTRA_STARTING_ID, mStartId);
+                    intent.putExtra(EXTRA_CURRENT_ID, mStartId);
+
+                    Log.i(TAG, "03. statingId: " + mStartId);
                     startActivity(intent, bundle);
                 }
             });
@@ -248,10 +258,11 @@ public class ArticleListActivity extends AppCompatActivity implements
             holder.thumbnailView.setAspectRatio(this.cursor.getFloat(ArticleLoader.Query.ASPECT_RATIO));
 
             // Make the transition names on the thumbnail view unique
-            id = this.cursor.getLong(ArticleLoader.Query._ID);
-            String transitionName = holder.thumbnailView.getTransitionName() + id;
+            String transitionName = "" + position;
+
+            Log.i(TAG, "04. transitionName: " + transitionName);
             holder.thumbnailView.setTransitionName(transitionName);
-            holder.thumbnailView.setTag(id);
+            holder.thumbnailView.setTag(position);
         }
 
         @Override

@@ -37,10 +37,11 @@ public class ArticleDetailFragment extends Fragment implements
     private static final String TAG = "ArticleDetailFragment";
 
     private static final float PARALLAX_FACTOR = 1.25f;
+    private static final String EXTRA_ITEM_ID = "item_id";
 
     private Cursor mCursor;
+    private long mCurrentId;
     private long mItemId;
-    private long mStartId;
     private View mRootView;
     private int mMutedColor = 0xFFFF5722;
     private ObservableScrollView mScrollView;
@@ -55,7 +56,6 @@ public class ArticleDetailFragment extends Fragment implements
     private int mStatusBarFullOpacityBottom;
     private Typeface robotoReg;
     private Typeface robotoThin;
-    private boolean mIsTransitioning;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -64,10 +64,10 @@ public class ArticleDetailFragment extends Fragment implements
     public ArticleDetailFragment() {
     }
 
-    public static ArticleDetailFragment newInstance(long itemId, long startId) {
+    public static ArticleDetailFragment newInstance(long currentId, long itemId) {
         Bundle arguments = new Bundle();
-        arguments.putLong(ArticleListActivity.EXTRA_CURRENT_ID, itemId);
-        arguments.putLong(ArticleListActivity.EXTRA_STARTING_ID, startId);
+        arguments.putLong(ArticleListActivity.EXTRA_CURRENT_ID, currentId);
+        arguments.putLong(EXTRA_ITEM_ID, itemId);
         ArticleDetailFragment fragment = new ArticleDetailFragment();
         fragment.setArguments(arguments);
         return fragment;
@@ -78,13 +78,12 @@ public class ArticleDetailFragment extends Fragment implements
         super.onCreate(savedInstanceState);
 
         if (getArguments().containsKey(ArticleListActivity.EXTRA_CURRENT_ID)) {
-            mItemId = getArguments().getLong(ArticleListActivity.EXTRA_CURRENT_ID);
+            mCurrentId = getArguments().getLong(ArticleListActivity.EXTRA_CURRENT_ID);
         }
-        if (getArguments().containsKey(ArticleListActivity.EXTRA_STARTING_ID)) {
-            mStartId = getArguments().getLong(ArticleListActivity.EXTRA_STARTING_ID);
+        if (getArguments().containsKey(EXTRA_ITEM_ID)) {
+            mItemId = getArguments().getLong(EXTRA_ITEM_ID);
         }
 
-        mIsTransitioning = savedInstanceState == null && mStartId == mItemId;
         mIsCard = getResources().getBoolean(R.bool.detail_is_card);
         mStatusBarFullOpacityBottom = getResources().getDimensionPixelSize(
                 R.dimen.detail_card_top_margin);
@@ -98,6 +97,7 @@ public class ArticleDetailFragment extends Fragment implements
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        // App uses fonts that are either the Android defaults, are complementary, and aren't otherwise distracting.
         robotoReg = Typeface.createFromAsset(getResources().getAssets(), "Roboto-Regular.ttf");
         robotoThin = Typeface.createFromAsset(getResources().getAssets(), "Roboto-Light.ttf");
     }
@@ -131,15 +131,13 @@ public class ArticleDetailFragment extends Fragment implements
             @Override
             public void onScrollChanged() {
                 mScrollY = mScrollView.getScrollY();
-                getActivityCast().onUpButtonFloorChanged(mItemId, ArticleDetailFragment.this);
                 mPhotoContainerView.setTranslationY((int) (mScrollY - mScrollY / PARALLAX_FACTOR));
                 updateStatusBar();
             }
         });
 
         mPhotoView = (ImageView) mRootView.findViewById(R.id.photo);
-        String transitionName = mPhotoView.getTransitionName();
-        mPhotoView.setTransitionName(transitionName + mItemId);
+        mPhotoView.setTransitionName("" + mCurrentId);
         mPhotoView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         mPhotoContainerView = mRootView.findViewById(R.id.photo_container);
 
@@ -273,16 +271,5 @@ public class ArticleDetailFragment extends Fragment implements
             return mPhotoView;
         }
         return null;
-    }
-
-    public int getUpButtonFloor() {
-        if (mPhotoContainerView == null || mPhotoView.getHeight() == 0) {
-            return Integer.MAX_VALUE;
-        }
-
-        // account for parallax
-        return mIsCard
-                ? (int) mPhotoContainerView.getTranslationY() + mPhotoView.getHeight() - mScrollY
-                : mPhotoView.getHeight() - mScrollY;
     }
 }

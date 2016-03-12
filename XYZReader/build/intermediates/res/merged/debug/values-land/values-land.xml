@@ -42,6 +42,9 @@
     <dimen name="toolbar_extended">@dimen/wrap_content</dimen>
     <item format="integer" name="wrap_content" type="dimen">-2</item>
     <item format="float" name="detail_body_line_spacing_multiplier" type="fraction">1.25</item>
+    <!-- From: file:/F:/My%20Documents/Git/XYZ-Reader/XYZReader/src/main/res/values-land/macro_layout.xml -->
+    <eat-comment/>
+    <integer name="list_column_count">3</integer>
     <!-- From: file:/F:/My%20Documents/Git/XYZ-Reader/XYZReader/build/intermediates/exploded-aar/com.android.support/design/23.1.1/res/values-land/values-land.xml -->
     <eat-comment/>
     <style name="Widget.Design.TabLayout" parent="Base.Widget.Design.TabLayout">

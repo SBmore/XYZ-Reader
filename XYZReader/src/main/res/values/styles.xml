@@ -17,6 +17,9 @@
 
 <resources>
 
+    <!-- App Theme extends from AppCompat -->
+    <!-- App has a consistent color theme defined in styles.xml -->
+    <!-- Color theme does not impact usability of the app -->
     <style name="Theme.Bacon" parent="@style/Theme.AppCompat.Light.NoActionBar">
         <!--<item name="colorPrimaryLight">@color/deep_orange_100</item>-->
         <item name="colorPrimary">@color/deep_orange_500</item>
@@ -24,6 +27,9 @@
         <item name="colorAccent">@color/light_blue_a400</item>
         <item name="android:windowContentTransitions">true</item>
 
+        <!--<item name="android:windowExitTransition">-->
+            <!--@transition/recycler_exit-->
+        <!--</item>-->
     </style>
 
     <style name="Theme.Bacon.Detail">
@@ -35,12 +41,5 @@
         <item name="android:textColorLink">@color/light_blue_a400</item>
     </style>
 
-    <!--<style name="Theme.Bacon.SecondaryText">-->
-        <!--<item name="textColorSecondary">@color/grey_600</item>-->
-    <!--</style>-->
-
-    <!--<style name="Theme.Bacon.Divider">-->
-        <!--<item name="divider">@color/grey_400</item>-->
-    <!--</style>-->
 
 </resources>

@@ -9,15 +9,16 @@ import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v13.app.FragmentStatePagerAdapter;
 import android.support.v4.app.SharedElementCallback;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.WindowInsets;
 import android.widget.ImageView;
 
 import com.example.xyzreader.R;
@@ -32,21 +33,18 @@ import java.util.Map;
  */
 public class ArticleDetailActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Cursor> {
+    private static final String TAG = "ArticleDetailActivity";
 
+    private static final int SHARE_REQUEST_CODE = 1;
     private Cursor mCursor;
+    private long mItemId;
     private long mStartId;
-
-    private long mSelectedItemId;
-    private int mSelectedItemUpButtonFloor = Integer.MAX_VALUE;
-    private int mTopInset;
+    private long mCurrentId;
 
     private ViewPager mPager;
     private MyPagerAdapter mPagerAdapter;
-    private View mUpButtonContainer;
-    private View mUpButton;
 
     private String mTitleText;
-    private long mStartingId;
     private boolean mIsReturning;
     private ArticleDetailFragment mCurrentFragment;
 
@@ -54,12 +52,13 @@ public class ArticleDetailActivity extends AppCompatActivity
     private final SharedElementCallback mCallback = new SharedElementCallback() {
         @Override
         public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
+            Log.i(TAG, "05. statingId: " + mStartId + " currentId: " + mCurrentId);
             if (mIsReturning) {
                 ImageView sharedElement = mCurrentFragment.getTransitionImage();
                 if (sharedElement == null) {
                     names.clear();
                     sharedElements.clear();
-                } else if (mStartingId != mSelectedItemId) {
+                } else if (mStartId != mCurrentId) {
                     names.clear();
                     names.add(sharedElement.getTransitionName());
                     sharedElements.clear();
@@ -94,54 +93,27 @@ public class ArticleDetailActivity extends AppCompatActivity
 
         mPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
-            public void onPageScrollStateChanged(int state) {
-                super.onPageScrollStateChanged(state);
-                mUpButton.animate()
-                        .alpha((state == ViewPager.SCROLL_STATE_IDLE) ? 1f : 0f)
-                        .setDuration(300);
-            }
-
-            @Override
             public void onPageSelected(int position) {
                 if (mCursor != null) {
                     mCursor.moveToPosition(position);
-                    mSelectedItemId = mCursor.getLong(ArticleLoader.Query._ID);
+                    mCurrentId = position;
                     mTitleText = mCursor.getString(ArticleLoader.Query.TITLE);
+                    Log.i(TAG, "06. statingId: " + mStartId + " currentId: " + mCurrentId);
                 }
-                updateUpButtonPosition();
             }
         });
-
-        mUpButtonContainer = findViewById(R.id.up_container);
-
-        mUpButton = findViewById(R.id.action_up);
-        mUpButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onSupportNavigateUp();
-            }
-        });
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mUpButtonContainer.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
-                @Override
-                public WindowInsets onApplyWindowInsets(View view, WindowInsets windowInsets) {
-                    view.onApplyWindowInsets(windowInsets);
-                    mTopInset = windowInsets.getSystemWindowInsetTop();
-                    mUpButtonContainer.setTranslationY(mTopInset);
-                    updateUpButtonPosition();
-                    return windowInsets;
-                }
-            });
-        }
 
         if (savedInstanceState == null) {
             if (getIntent() != null && getIntent().getData() != null) {
-                mStartId = ItemsContract.Items.getItemId(getIntent().getData());
-                mSelectedItemId = mStartId;
+                mItemId = ItemsContract.Items.getItemId(getIntent().getData());
+                mStartId = getIntent().getLongExtra(ArticleListActivity.EXTRA_STARTING_ID, 0);
+                mCurrentId = getIntent().getLongExtra(ArticleListActivity.EXTRA_CURRENT_ID, 0);
+                Log.i(TAG, "07. statingId: " + mStartId + " currentId: " + mCurrentId + " itemId: " + mItemId);
             }
         } else {
-            mSelectedItemId = savedInstanceState.getLong(ArticleListActivity.EXTRA_CURRENT_ID);
+            mCurrentId = savedInstanceState.getLong(ArticleListActivity.EXTRA_CURRENT_ID);
+            mStartId = savedInstanceState.getLong(ArticleListActivity.EXTRA_STARTING_ID);
+            Log.i(TAG, "08. statingId: " + mStartId + " currentId: " + mCurrentId);
         }
 
         this.findViewById(R.id.share_fab).setOnClickListener(new View.OnClickListener() {
@@ -151,17 +123,31 @@ public class ArticleDetailActivity extends AppCompatActivity
                 intent.setAction(Intent.ACTION_SEND);
                 intent.putExtra(Intent.EXTRA_TEXT,
                         "Check out this article by downloading the XYZReader app on the Play Store:\n" +
-                        mTitleText);
+                                mTitleText);
                 intent.setType("text/plain");
-                startActivity(Intent.createChooser(intent, getString(R.string.action_share)));
+                startActivityForResult(Intent.createChooser(intent, getString(R.string.action_share)), SHARE_REQUEST_CODE);
             }
         });
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == SHARE_REQUEST_CODE) {
+            View view = findViewById(R.id.share_fab);
+            Snackbar snackbar = Snackbar
+                    .make(view, "Sharing is caring!", Snackbar.LENGTH_SHORT);
+
+            snackbar.show();
+        }
+    }
+
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putLong(ArticleListActivity.EXTRA_CURRENT_ID, mSelectedItemId);
+        Log.i(TAG, "09. statingId: " + mStartId + " currentId: " + mCurrentId);
+        outState.putLong(ArticleListActivity.EXTRA_CURRENT_ID, mCurrentId);
+        outState.putLong(ArticleListActivity.EXTRA_STARTING_ID, mStartId);
     }
 
     @Override
@@ -174,19 +160,20 @@ public class ArticleDetailActivity extends AppCompatActivity
         mCursor = cursor;
         mPagerAdapter.notifyDataSetChanged();
 
+        Log.i(TAG, "10. itemId: " + mItemId);
         // Select the start ID
-        if (mStartId > 0) {
+        if (mItemId > 0) {
             mCursor.moveToFirst();
             // TODO: optimize
             while (!mCursor.isAfterLast()) {
-                if (mCursor.getLong(ArticleLoader.Query._ID) == mStartId) {
+                if (mCursor.getLong(ArticleLoader.Query._ID) == mItemId) {
                     final int position = mCursor.getPosition();
                     mPager.setCurrentItem(position, false);
                     break;
                 }
                 mCursor.moveToNext();
             }
-            mStartId = 0;
+            mItemId = 0;
         }
     }
 
@@ -195,8 +182,10 @@ public class ArticleDetailActivity extends AppCompatActivity
         // Reverses the shared element transition
         mIsReturning = true;
         Intent intent = new Intent();
-        intent.putExtra(ArticleListActivity.EXTRA_STARTING_ID, mStartingId);
-        intent.putExtra(ArticleListActivity.EXTRA_CURRENT_ID, mSelectedItemId);
+
+        Log.i(TAG, "11.statingId: " + mStartId + " currentId: " + mCurrentId);
+        intent.putExtra(ArticleListActivity.EXTRA_STARTING_ID, mStartId);
+        intent.putExtra(ArticleListActivity.EXTRA_CURRENT_ID, mCurrentId);
         setResult(RESULT_OK, intent);
         super.finishAfterTransition();
     }
@@ -205,18 +194,6 @@ public class ArticleDetailActivity extends AppCompatActivity
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
         mCursor = null;
         mPagerAdapter.notifyDataSetChanged();
-    }
-
-    public void onUpButtonFloorChanged(long itemId, ArticleDetailFragment fragment) {
-        if (itemId == mSelectedItemId) {
-            mSelectedItemUpButtonFloor = fragment.getUpButtonFloor();
-            updateUpButtonPosition();
-        }
-    }
-
-    private void updateUpButtonPosition() {
-        int upButtonNormalBottom = mTopInset + mUpButton.getHeight();
-        mUpButton.setTranslationY(Math.min(mSelectedItemUpButtonFloor - upButtonNormalBottom, 0));
     }
 
     public void setPreDrawListener(final View view) {
@@ -241,18 +218,13 @@ public class ArticleDetailActivity extends AppCompatActivity
         public void setPrimaryItem(ViewGroup container, int position, Object object) {
             super.setPrimaryItem(container, position, object);
             mCurrentFragment = (ArticleDetailFragment) object;
-            if (mCurrentFragment != null) {
-                mTitleText = mCursor.getString(ArticleLoader.Query.TITLE);
-                mSelectedItemUpButtonFloor = mCurrentFragment.getUpButtonFloor();
-                updateUpButtonPosition();
-            }
         }
 
         @Override
         public Fragment getItem(int position) {
             mCursor.moveToPosition(position);
-            return ArticleDetailFragment.newInstance(mCursor.getLong(ArticleLoader.Query._ID),
-                    mStartingId);
+            Log.i(TAG, "12.currentId: " + mCurrentId);
+            return ArticleDetailFragment.newInstance(position, mCursor.getLong(ArticleLoader.Query._ID));
         }
 
         @Override

@@ -29,6 +29,12 @@
     <color name="background_floating_material_light">@android:color/white</color>
     <color name="background_material_dark">@color/material_grey_850</color>
     <color name="background_material_light">@color/material_grey_50</color>
+    <!-- From: file:/F:/My%20Documents/Git/XYZ-Reader/XYZReader/src/main/res/values/colors.xml -->
+    <eat-comment/>
+    <color name="black">#4d000000</color>
+    <color name="blank">#00000000</color>
+    <!-- From: file:/F:/My%20Documents/Git/XYZ-Reader/XYZReader/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml -->
+    <eat-comment/>
     <color name="bright_foreground_disabled_material_dark">#80ffffff</color>
     <color name="bright_foreground_disabled_material_light">#80000000</color>
     <color name="bright_foreground_inverse_material_dark">@color/bright_foreground_material_light</color>
@@ -242,14 +248,14 @@
     <dimen name="article_bottom">0dp</dimen>
     <dimen name="article_end">4dp</dimen>
     <dimen name="article_start">4dp</dimen>
-    <dimen name="article_subtitle_bottom">4dp</dimen>
+    <dimen name="article_subtitle_bottom">8dp</dimen>
     <dimen name="article_subtitle_end">8dp</dimen>
     <dimen name="article_subtitle_start">8dp</dimen>
-    <dimen name="article_subtitle_top">4dp</dimen>
-    <dimen name="article_title_bottom">4dp</dimen>
+    <dimen name="article_subtitle_top">8dp</dimen>
+    <dimen name="article_title_bottom">8dp</dimen>
     <dimen name="article_title_end">8dp</dimen>
     <dimen name="article_title_start">8dp</dimen>
-    <dimen name="article_title_top">4dp</dimen>
+    <dimen name="article_title_top">8dp</dimen>
     <dimen name="article_top">8dp</dimen>
     <!-- From: file:/F:/My%20Documents/Git/XYZ-Reader/XYZReader/build/intermediates/exploded-aar/com.android.support/cardview-v7/23.1.1/res/values/values.xml -->
     <eat-comment/>
@@ -426,7 +432,6 @@
     <string name="status_bar_notification_info_overflow">999+</string>
     <!-- From: file:/F:/My%20Documents/Git/XYZ-Reader/XYZReader/src/main/res/values/strings.xml -->
     <eat-comment/>
-    <string name="transition_photo">transition photo</string>
     <string name="up">Up</string>
     <string name="welcome_xyz_reader">Welcome to XYZ Reader!</string>
     <!-- From: file:/F:/My%20Documents/Git/XYZ-Reader/XYZReader/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml -->
@@ -1668,6 +1673,9 @@
         <item name="colorAccent">@color/light_blue_a400</item>
         <item name="android:windowContentTransitions">true</item>
 
+        <!--<item name="android:windowExitTransition">-->
+            <!--@transition/recycler_exit-->
+        <!--</item>-->
     </style>
     <style name="Theme.Bacon.Detail">
         <item name="android:statusBarColor">@android:color/transparent</item>

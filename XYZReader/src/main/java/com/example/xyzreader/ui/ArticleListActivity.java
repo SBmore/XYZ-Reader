@@ -19,6 +19,7 @@ import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.TextView;
 
 import com.example.xyzreader.R;
@@ -49,7 +50,7 @@ public class ArticleListActivity extends AppCompatActivity implements
     private Typeface robotoThin;
     private Long mStartId;
     private boolean mIsRefreshing = false;
-    private BroadcastReceiver mRefreshingReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver mRefreshingReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (UpdaterService.BROADCAST_ACTION_STATE_CHANGE.equals(intent.getAction())) {
@@ -63,18 +64,20 @@ public class ArticleListActivity extends AppCompatActivity implements
     // was learned from this tutorial: http://stackoverflow.com/questions/27304834/viewpager-fragments-shared-element-transitions
     // and the linked example: https://github.com/alexjlockwood/activity-transitions
     private final SharedElementCallback mCallback = new SharedElementCallback() {
-        // adjust the mapping of shared element names to Views so that the return shared transition
+               // adjust the mapping of shared element names to Views so that the return shared transition
         // will match up even after changing fragments in ArticleDetailActivity
         @Override
         public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
             if (mReenterBundle != null) {
                 long startingId = mReenterBundle.getLong(EXTRA_STARTING_ID);
                 long currentId = mReenterBundle.getLong(EXTRA_CURRENT_ID);
-                Log.i(TAG, "01. statingId: " + startingId + " currentId: " + currentId);
+
+//                Log.i(TAG, "01. statingId: " + startingId + " currentId: " + currentId);
+
                 if (startingId != currentId) {
                     // the user has swiped to a different fragment in ArticleDetailActivity so
                     // update the shared element
-                    View sharedElement = mRecyclerView.findViewWithTag(currentId);
+                    View sharedElement = mRecyclerView.findViewWithTag(getString(R.string.photo_tag) + currentId);
                     if (sharedElement != null) {
                         String transitionName = sharedElement.getTransitionName();
                         names.clear();
@@ -91,6 +94,7 @@ public class ArticleListActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_article_list);
 
         // set the callback created above so return shared transitions match up
@@ -126,14 +130,22 @@ public class ArticleListActivity extends AppCompatActivity implements
         mStartId = mReenterBundle.getLong(EXTRA_STARTING_ID);
         long currentId = mReenterBundle.getLong(EXTRA_CURRENT_ID);
 
-        Log.i(TAG, "02. statingId: " + mStartId + " currentId: " + currentId);
+//        Log.i(TAG, "02. statingId: " + mStartId + " currentId: " + currentId);
+
         if (mStartId != currentId) {
-            postponeEnterTransition();
-            View sharedElement = mRecyclerView.findViewWithTag(currentId);
-            // TODO: 10/03/2016 Figure out how to get the position of the shared element so it can be scrolled to
-//            mRecyclerView.scrollToPosition(7);
-            startPostponedEnterTransition();
+            mRecyclerView.scrollToPosition((int) currentId);
         }
+
+        postponeEnterTransition();
+        mRecyclerView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                mRecyclerView.getViewTreeObserver().removeOnPreDrawListener(this);
+                mRecyclerView.requestLayout();
+                startPostponedEnterTransition();
+                return true;
+            }
+        });
     }
 
     @Override
@@ -150,23 +162,6 @@ public class ArticleListActivity extends AppCompatActivity implements
         super.onStart();
         registerReceiver(mRefreshingReceiver,
                 new IntentFilter(UpdaterService.BROADCAST_ACTION_STATE_CHANGE));
-    }
-
-    @Override
-    public void onEnterAnimationComplete() {
-        super.onEnterAnimationComplete();
-//        final int startScrollPos = getResources().getDimensionPixelSize(
-//                R.dimen.init_scroll_up_distance);
-//        Animator animator = ObjectAnimator.ofInt(mCoordinatorLayout, "scrollY", startScrollPos)
-//                .setDuration(300);
-//        animator.start();
-
-//        ObjectAnimator scaleXIn = ObjectAnimator.ofFloat(mAppBarLayout, "scaleX", 1f, 1f);
-//        ObjectAnimator scaleYIn = ObjectAnimator.ofFloat(mAppBarLayout, "scaleY", 1.2f, 1f);
-//        AnimatorSet set = new AnimatorSet();
-//        set.play(scaleXIn).with(scaleYIn);
-//        set.setDuration(300);
-//        set.start();
     }
 
     private void updateRefreshingUI() {
@@ -198,8 +193,7 @@ public class ArticleListActivity extends AppCompatActivity implements
     }
 
     private class Adapter extends RecyclerView.Adapter<ViewHolder> {
-        private Cursor cursor;
-
+        private final Cursor cursor;
         public Adapter(Cursor cursor) {
             this.cursor = cursor;
         }
@@ -219,7 +213,7 @@ public class ArticleListActivity extends AppCompatActivity implements
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    mStartId = Long.parseLong(vh.thumbnailView.getTag().toString());
+                    mStartId = (long) vh.getLayoutPosition();
                     Bundle bundle = ActivityOptions.makeSceneTransitionAnimation(
                             ArticleListActivity.this, view.findViewById(R.id.thumbnail),
                             view.findViewById(R.id.thumbnail).getTransitionName())
@@ -231,7 +225,8 @@ public class ArticleListActivity extends AppCompatActivity implements
                     intent.putExtra(EXTRA_STARTING_ID, mStartId);
                     intent.putExtra(EXTRA_CURRENT_ID, mStartId);
 
-                    Log.i(TAG, "03. statingId: " + mStartId);
+//                    Log.i(TAG, "03. statingId: " + mStartId);
+
                     startActivity(intent, bundle);
                 }
             });
@@ -239,7 +234,7 @@ public class ArticleListActivity extends AppCompatActivity implements
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder holder, int position) {
+        public void onBindViewHolder(final ViewHolder holder, int position) {
             this.cursor.moveToPosition(position);
 
             holder.titleView.setText(this.cursor.getString(ArticleLoader.Query.TITLE));
@@ -252,17 +247,27 @@ public class ArticleListActivity extends AppCompatActivity implements
                             + " by "
                             + this.cursor.getString(ArticleLoader.Query.AUTHOR));
             holder.subtitleView.setTypeface(robotoReg);
-            holder.thumbnailView.setImageUrl(
-                    this.cursor.getString(ArticleLoader.Query.THUMB_URL),
-                    ImageLoaderHelper.getInstance(ArticleListActivity.this).getImageLoader());
+
+            // App uses images that are high quality, specific, and full bleed.
+            if (getResources().getBoolean(R.bool.is_tablet)) {
+                holder.thumbnailView.setImageUrl(
+                        this.cursor.getString(ArticleLoader.Query.PHOTO_URL),
+                        ImageLoaderHelper.getInstance(ArticleListActivity.this).getImageLoader());
+            } else {
+                holder.thumbnailView.setImageUrl(
+                        this.cursor.getString(ArticleLoader.Query.THUMB_URL),
+                        ImageLoaderHelper.getInstance(ArticleListActivity.this).getImageLoader());
+            }
+
             holder.thumbnailView.setAspectRatio(this.cursor.getFloat(ArticleLoader.Query.ASPECT_RATIO));
 
             // Make the transition names on the thumbnail view unique
-            String transitionName = "" + position;
+            String transitionName = getString(R.string.photo_transition) + position;
 
-            Log.i(TAG, "04. transitionName: " + transitionName);
+//            Log.i(TAG, "04. transitionName: " + transitionName);
+
             holder.thumbnailView.setTransitionName(transitionName);
-            holder.thumbnailView.setTag(position);
+            holder.thumbnailView.setTag(getString(R.string.photo_tag) + position);
         }
 
         @Override
@@ -272,9 +277,9 @@ public class ArticleListActivity extends AppCompatActivity implements
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        public DynamicHeightNetworkImageView thumbnailView;
-        public TextView titleView;
-        public TextView subtitleView;
+        public final DynamicHeightNetworkImageView thumbnailView;
+        public final TextView titleView;
+        public final TextView subtitleView;
 
         public ViewHolder(View view) {
             super(view);

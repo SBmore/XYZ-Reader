@@ -26,10 +26,6 @@
         <item name="colorPrimaryDark">@color/deep_orange_700</item>
         <item name="colorAccent">@color/light_blue_a400</item>
         <item name="android:windowContentTransitions">true</item>
-
-        <!--<item name="android:windowExitTransition">-->
-            <!--@transition/recycler_exit-->
-        <!--</item>-->
     </style>
 
     <style name="Theme.Bacon.Detail">

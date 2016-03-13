@@ -1,0 +1,4 @@
+<resources>
+    <!-- detail -->
+    <dimen name="detail_card_max_width">704dp</dimen>
+</resources>

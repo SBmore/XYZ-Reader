@@ -52,7 +52,6 @@ public class ArticleDetailFragment extends Fragment implements
     private View mPhotoContainerView;
     private ImageView mPhotoView;
     private int mScrollY;
-    private boolean mIsCard = false;
     private int mStatusBarFullOpacityBottom;
     private Typeface robotoReg;
     private Typeface robotoThin;
@@ -84,14 +83,9 @@ public class ArticleDetailFragment extends Fragment implements
             mItemId = getArguments().getLong(EXTRA_ITEM_ID);
         }
 
-        mIsCard = getResources().getBoolean(R.bool.detail_is_card);
         mStatusBarFullOpacityBottom = getResources().getDimensionPixelSize(
                 R.dimen.detail_card_top_margin);
         setHasOptionsMenu(true);
-    }
-
-    public ArticleDetailActivity getActivityCast() {
-        return (ArticleDetailActivity) getActivity();
     }
 
     @Override
@@ -137,7 +131,7 @@ public class ArticleDetailFragment extends Fragment implements
         });
 
         mPhotoView = (ImageView) mRootView.findViewById(R.id.photo);
-        mPhotoView.setTransitionName("" + mCurrentId);
+        mPhotoView.setTransitionName(mRootView.getContext().getString(R.string.photo_transition) + mCurrentId);
         mPhotoView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         mPhotoContainerView = mRootView.findViewById(R.id.photo_container);
 
@@ -163,11 +157,11 @@ public class ArticleDetailFragment extends Fragment implements
         mDrawInsetsFrameLayout.setInsetBackground(mStatusBarColorDrawable);
     }
 
-    static float progress(float v, float min, float max) {
+    private static float progress(float v, float min, float max) {
         return constrain((v - min) / (max - min), 0, 1);
     }
 
-    static float constrain(float val, float min, float max) {
+    private static float constrain(float val, float min, float max) {
         if (val < min) {
             return min;
         } else if (val > max) {
@@ -227,7 +221,7 @@ public class ArticleDetailFragment extends Fragment implements
         } else {
             mRootView.setVisibility(View.GONE);
             titleView.setText("N/A");
-            bylineView.setText("N/A" );
+            bylineView.setText("N/A");
             bodyView.setText("N/A");
         }
     }
@@ -264,6 +258,7 @@ public class ArticleDetailFragment extends Fragment implements
         mCursor = null;
         bindViews();
     }
+
     ImageView getTransitionImage() {
         Rect bounds = new Rect();
         getActivity().getWindow().getDecorView().getHitRect(bounds);

@@ -3,27 +3,26 @@
     <dimen name="list_title_text_size">14sp</dimen>
     <dimen name="list_subtitle_text_size">12sp</dimen>
 
-    <dimen name="detail_title_text_size">28sp</dimen>
-    <dimen name="detail_body_text_size">12sp</dimen>
+    <dimen name="detail_title_text_size">24sp</dimen>
+    <dimen name="detail_body_text_size">14sp</dimen>
     <item name="detail_body_line_spacing_multiplier" format="float" type="fraction">1.25</item>
 
     <!-- elevation -->
     <dimen name="fab_elevation">6dp</dimen>
     <dimen name="fab_press_translation_z">12dp</dimen>
-    <dimen name="fab_margin">16dp</dimen>
-
-    <dimen name="init_scroll_up_distance">32dp</dimen>
+    <dimen name="card_elevation">2dp</dimen>
+    <dimen name="max_width_linear_layout">2dp</dimen>
 
     <!-- padding -->
     <dimen name="toolbar_extended">128dp</dimen>
-
+    <dimen name="fab_margin">16dp</dimen>
     <dimen name="logo_start">24dp</dimen>
     <dimen name="logo_end">24dp</dimen>
     <dimen name="logo_bottom">4dp</dimen>
 
     <!-- this plus article padding -->
-    <dimen name="list_start">12dp</dimen>
-    <dimen name="list_end">12dp</dimen>
+    <dimen name="list_start">20dp</dimen>
+    <dimen name="list_end">20dp</dimen>
 
     <dimen name="article_start">4dp</dimen>
     <dimen name="article_end">4dp</dimen>
@@ -41,6 +40,20 @@
     <dimen name="article_subtitle_bottom">8dp</dimen>
 
     <!-- dimensions -->
-    <dimen name="action_up_image_width">56dp</dimen>
     <dimen name="fab_image_width">56dp</dimen>
+
+    <!-- list -->
+    <integer name="list_column_count">2</integer>
+
+    <!-- detail -->
+    <integer name="title_max_lines">2</integer>
+    <integer name="subtitle_max_lines">2</integer>
+    <item name="line_spacing_mult" format="float" type="dimen">0.9</item>
+    <dimen name="detail_photo_height">280dp</dimen>
+    <dimen name="detail_card_top_margin">@dimen/detail_photo_height</dimen>
+    <dimen name="detail_inner_horiz_margin">20dp</dimen>
+    <dimen name="detail_card_max_width">10000dp</dimen> <!-- force match_parent -->
+    <dimen name="detail_metabar_vert_padding">16dp</dimen>
+    <dimen name="detail_metabar_title_bottom_padding">4dp</dimen>
+    <dimen name="detail_body_bottom_margin">88dp</dimen>
 </resources>
